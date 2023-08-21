@@ -13,12 +13,12 @@ pub struct Terminal {
     size: Size,
     // (Xqhare): _var is a variable that just isn't used anywhere else in the program but need to exist, it is initialised in impl
     // (Xqhare): e.g. here where into_raw_mode returns something and as long as it is held onto, raw_mode is enabled.
-    _stdout: RawTerminal<std::io::Stdout>,
+    _stdout: RawTerminal<io::Stdout>,
 
 }
 
 impl Terminal {
-    pub fn default() -> Result<Self, std::io::Error> {
+    pub fn default() -> Result<Self, io::Error> {
         let size = termion::terminal_size()?;
         Ok(Self {
             size: Size {
@@ -45,10 +45,10 @@ impl Terminal {
         let y = y as u16;
         print!("{}", termion::cursor::Goto(x, y));
     }
-    pub fn flush() -> Result<(), std::io::Error> {
-        io::stdout().flush()
+    pub fn flush() -> Result<(), io::Error> {
+        stdout().flush()
     }
-    pub fn read_key() -> Result<Key, std::io::Error> {
+    pub fn read_key() -> Result<Key, io::Error> {
         loop {
             if let Some(key) = io::stdin().lock().keys().next() {
                 return key;

@@ -1,5 +1,5 @@
 Seshat is a small, lightweight, lean, free-ranged, sustainable, eco-friendly, crypto-friendly and BLAZINGLY FAST text editor witten in rust by Xqhare.
-The name Seshat is from the egyptian goddess Seshat; goddess of writing, wisdom and knowledge; her name means "female scribe"
+The name Seshat is from the egyptian goddess Seshat, the goddess of writing, wisdom and knowledge. Her name means "female scribe", at least according to wikipedia.
 
 TODO-LIST
 TODO: Syntax highlighting for general use:

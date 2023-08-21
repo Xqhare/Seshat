@@ -10,6 +10,6 @@ pub use editor::Position;
 pub use row::Row;
 
 fn main() {
-    let editor = Editor::default();
+    let _editor = Editor::default();
     Editor::default().run();
 }
