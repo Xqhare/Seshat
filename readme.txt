@@ -7,3 +7,5 @@ TODO: Syntax highlighting for general use:
     TODO: - numbers in a colour
     TODO: - words between brackets in cursive
     TODO: - automatically add closing brackets/ curly brackets / quotation marks
+
+TODO: maybe add auther to the welcome message
