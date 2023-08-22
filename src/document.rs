@@ -32,7 +32,25 @@ impl Document {
     pub fn len(&self) -> usize {
         self.rows.len()
     }
+    fn insert_newline(&mut self, at: &Position) {
+        // (Xqhare): Check if position is larger than the length of the row. I'm just aborting the function atm if that is true, as it never should be
+        if at.y > self.len() {
+            return;
+        }
+        // (Xqhare): first check if at end of file, if so add new line below last; if not add new line at y + 1
+        if at.y == self.len() {
+            self.rows.push(Row::default());
+            return;
+        }
+        let new_row = self.rows.get_mut(at.y).unwrap().split(at.x);
+        self.rows.insert(at.y + 1, new_row);
+    }
     pub fn insert(&mut self, at: &Position, c: char) {
+        // (Xqhare): Just end the function if a newline was inserted after inserting the newline; nothing will happen with the current row now.
+        if c == '\n' {
+            self.insert_newline(at);
+            return;
+        }
         if at.y == self.len() {
             let mut row = Row::default();
             row.insert(0, c);
