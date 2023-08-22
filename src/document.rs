@@ -9,6 +9,7 @@ use std::io::{Error, Write};
 pub struct Document {
     rows: Vec<Row>,
     pub file_name: Option<String>,
+    dirty: bool,
 }
 
 impl Document {
@@ -18,9 +19,10 @@ impl Document {
         for value in contents.lines() {
             rows.push(Row::from(value));
         }
-        Ok(Self{
+        Ok(Self {
             rows,
             file_name: Some(filename.to_string()),
+            dirty: false,
         })
     }
     pub fn row(&self, index: usize) -> Option<&Row> {
@@ -34,9 +36,7 @@ impl Document {
     }
     fn insert_newline(&mut self, at: &Position) {
         // (Xqhare): Check if position is larger than the length of the row. I'm just aborting the function atm if that is true, as it never should be
-        if at.y > self.len() {
-            return;
-        }
+
         // (Xqhare): first check if at end of file, if so add new line below last; if not add new line at y + 1
         if at.y == self.len() {
             self.rows.push(Row::default());
@@ -46,6 +46,10 @@ impl Document {
         self.rows.insert(at.y + 1, new_row);
     }
     pub fn insert(&mut self, at: &Position, c: char) {
+        if at.y > self.len() {
+            return;
+        }
+        self.dirty = true;
         // (Xqhare): Just end the function if a newline was inserted after inserting the newline; nothing will happen with the current row now.
         if c == '\n' {
             self.insert_newline(at);
@@ -55,7 +59,7 @@ impl Document {
             let mut row = Row::default();
             row.insert(0, c);
             self.rows.push(row);
-        } else if at.y < self.len() {
+        } else {
             let row = self.rows.get_mut(at.y).unwrap();
             row.insert(at.x, c);
         }
@@ -66,6 +70,7 @@ impl Document {
         if at.y >= len {
             return;
         }
+        self.dirty = true;
         if at.x == self.rows.get_mut(at.y).unwrap().len() && at.y < len - 1 {
             let next_row = self.rows.remove(at.y + 1);
             let row = self.rows.get_mut(at.y).unwrap();
@@ -75,7 +80,7 @@ impl Document {
             row.delete(at.x);
         }
     }
-    pub fn save(&self) -> Result<(), Error> {
+    pub fn save(&mut self) -> Result<(), Error> {
         if let Some(file_name) = &self.file_name {
             let mut file = fs::File::create(file_name)?;
             for row in &self.rows {
@@ -83,7 +88,11 @@ impl Document {
                 // (Xqhare): I do not save newlines, only rows -> so we insert a byte array of \n with b"\n".
                 file.write_all(b"\n")?;
             }
+            self.dirty = false;
         }
         Ok(())
+    }
+    pub fn is_dirty(&self) -> bool {
+        self.dirty
     }
 }
