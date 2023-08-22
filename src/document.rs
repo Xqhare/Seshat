@@ -2,6 +2,7 @@ use crate::Position;
 use crate::Row;
 // (Xqhare): fs stands for File System; it's basically the cross-platform os module from python.
 use std::fs;
+use std::ops::Deref;
 
 // (Xqhare): #[derive(Default)] makes a simple [JS-like] constructor for the [JS-like] class Document.
 #[derive(Default)]
@@ -39,6 +40,21 @@ impl Document {
         } else if at.y < self.len() {
             let row = self.rows.get_mut(at.y).unwrap();
             row.insert(at.x, c);
+        }
+    }
+    pub fn delete(&mut self, at: &Position) {
+        let len = self.len();
+        // (Xqhare): if y is larger than length it is out of scope anyway
+        if at.y >= len {
+            return;
+        }
+        if at.x == self.rows.get_mut(at.y).unwrap().len() && at.y < len - 1 {
+            let next_row = self.rows.remove(at.y + 1);
+            let row = self.rows.get_mut(at.y).unwrap();
+            row.append(&next_row);
+        } else {
+            let row = self.rows.get_mut(at.y).unwrap();
+            row.delete(at.x);
         }
     }
 }
