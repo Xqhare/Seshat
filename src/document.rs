@@ -2,7 +2,7 @@ use crate::Position;
 use crate::Row;
 // (Xqhare): fs stands for File System; it's basically the cross-platform os module from python.
 use std::fs;
-use std::ops::Deref;
+use std::io::{Error, Write};
 
 // (Xqhare): #[derive(Default)] makes a simple [JS-like] constructor for the [JS-like] class Document.
 #[derive(Default)]
@@ -74,5 +74,16 @@ impl Document {
             let row = self.rows.get_mut(at.y).unwrap();
             row.delete(at.x);
         }
+    }
+    pub fn save(&self) -> Result<(), Error> {
+        if let Some(file_name) = &self.file_name {
+            let mut file = fs::File::create(file_name)?;
+            for row in &self.rows {
+                file.write_all(row.as_bytes())?;
+                // (Xqhare): I do not save newlines, only rows -> so we insert a byte array of \n with b"\n".
+                file.write_all(b"\n")?;
+            }
+        }
+        Ok(())
     }
 }

@@ -1,7 +1,7 @@
 use crate::Document;
 use crate::Row;
 use crate::Terminal;
-use std::env;
+use std::{env, io};
 use std::time::Duration;
 use std::time::Instant;
 use termion::color;
@@ -58,7 +58,7 @@ impl Editor {
     }
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
-        let mut initial_status = String::from("HELP: Ctrl-q to quit");
+        let mut initial_status = String::from("HELP: Ctrl-s to save | Ctrl-q to quit");
         let document = if args.len() > 1 {
             let file_name = &args[1];
             let doc = Document::open(&file_name);
@@ -102,11 +102,31 @@ impl Editor {
         Terminal::cursor_show();
         Terminal::flush()
     }
+    fn save(&mut self) {
+        // (Xqhare): Check for filename, if none found let user save as
+        if self.document.file_name.is_none() {
+            let new_name = self.prompt("Save as: ").unwrap_or(None);
+            if new_name.is_none() {
+                self.status_message = StatusMessage::from("Save aborted.".to_string());
+                return;
+            }
+            self.document.file_name = new_name;
+        }
+
+        // (Xqhare): is_ok it an error checker if used in an if; it returns a bool
+        if self.document.save().is_ok() {
+            self.status_message = StatusMessage::from("File saved Successfully.".to_string());
+            // (Xqhare): else here is the error handler!
+        } else {
+            self.status_message = StatusMessage::from("Error writing file!".to_string());
+        }
+    }
     pub fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
-            // (Xqhare): what does the | do??
+            // (Xqhare): what does the | do?? -> normal or? (and-or)
             Key::Ctrl('q') => self.should_quit = true,
+            Key::Ctrl('s') => self.save(),
             Key::Char(c) => {
                 self.document.insert(&self.cursor_position, c);
                 self.move_cursor(Key::Right);
@@ -293,6 +313,37 @@ impl Editor {
             text.truncate(self.terminal.size().width as usize);
             println!("{}", text)
         }
+    }
+    fn prompt(&mut self, prompt: &str) -> Result<Option<String>, io::Error> {
+        // (Xqhare): initialising the user answer as an empty mutable string
+        let mut result = String::new();
+        loop {
+            self.status_message = StatusMessage::from(format!("{}{}", prompt, result));
+            self.refresh_screen()?;
+            match Terminal::read_key()? {
+                Key::Backspace => {
+                    if !result.is_empty() {
+                        result.truncate(result.len() - 1);
+                    }
+                }
+                Key::Char('\n') => break,
+                Key::Char(c) => {
+                    if !c.is_control() {
+                        result.push(c);
+                    }
+                }
+                Key::Esc => {
+                    result.truncate(0);
+                    break;
+                }
+                _ => (),
+            }
+        }
+        self.status_message = StatusMessage::from(String::new());
+        if result.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(result))
     }
 }
 
