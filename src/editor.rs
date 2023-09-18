@@ -289,7 +289,7 @@ impl Editor {
             // (Xqhare): it can be broken into smaller; more distinct blocks of code!
             if let Some(row) = self
                 .document
-                .row(self.offset.saturating_add(terminal_row as usize)) {
+                .row(self.offset.y.saturating_add(terminal_row as usize)) {
               self.draw_row(row);
             } else if self.document.is_empty() && terminal_row == (height / 3) - 1 {
                 self.draw_welcome_box();
