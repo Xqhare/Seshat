@@ -6,4 +6,3 @@ TODO: Syntax highlighting for general use:
     TODO: - TODO in yellow
     TODO: - numbers in a colour
     TODO: - words between brackets in cursive
-    TODO: - automatically add closing brackets/ curly brackets / quotation marks
