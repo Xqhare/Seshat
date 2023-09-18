@@ -264,7 +264,7 @@ impl Editor {
         println!("{}\r", welcome_message);
     }
     pub fn draw_welcome_box(&self) {
-        let mut welcome_message = format!("==========================================");
+        let mut welcome_message = format!("========================================================");
         let width = self.terminal.size().width as usize;
         let len = welcome_message.len();
         let padding = width.saturating_sub(len) / 2;
