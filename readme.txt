@@ -3,9 +3,7 @@ The name Seshat is from the egyptian goddess Seshat, the goddess of writing, wis
 
 TODO-LIST
 TODO: Syntax highlighting for general use:
-    TODO: - TODO like in pycharm
+    TODO: - TODO in yellow
     TODO: - numbers in a colour
     TODO: - words between brackets in cursive
     TODO: - automatically add closing brackets/ curly brackets / quotation marks
-
-TODO: maybe add auther to the welcome message
