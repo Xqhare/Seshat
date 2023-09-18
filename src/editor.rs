@@ -139,6 +139,7 @@ impl Editor {
                 }
                 self.should_quit = true
             }
+            Key::Alt('Q') => self.should_quit = true,
             Key::Ctrl('s') => self.save(),
             Key::Char('(') => {
                 self.document.insert(&self.cursor_position, '(');
