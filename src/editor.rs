@@ -196,7 +196,7 @@ impl Editor {
         let Position {x, y} = self.cursor_position;
         let width = self.terminal.size().width as usize;
         let height = self.terminal.size().height as usize;
-        let mut offset = &mut self.offset;
+        let offset = &mut self.offset;
         if y < offset.y {
             offset.y = y;
         } else if y >= offset.y.saturating_add(height) {
@@ -207,7 +207,7 @@ impl Editor {
         } else if x >= offset.x.saturating_add(width) {
             offset.x = x.saturating_sub(width).saturating_add(1);
         }
-    }
+    }// (Xqhare): unnecessary
     pub fn move_cursor(&mut self, key: Key) {
         let terminal_height = self.terminal.size().height as usize;
         let Position { mut y, mut x } = self.cursor_position;
