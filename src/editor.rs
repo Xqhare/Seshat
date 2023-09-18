@@ -140,6 +140,26 @@ impl Editor {
                 self.should_quit = true
             }
             Key::Ctrl('s') => self.save(),
+            Key::Char('(') => {
+                self.document.insert(&self.cursor_position, '(');
+                self.move_cursor(Key::Right);
+                self.document.insert(&self.cursor_position, ')')
+            }
+            Key::Char('"') => {
+                self.document.insert(&self.cursor_position, '"');
+                self.move_cursor(Key::Right);
+                self.document.insert(&self.cursor_position, '"')
+            }
+            Key::Char('{') => {
+                self.document.insert(&self.cursor_position, '{');
+                self.move_cursor(Key::Right);
+                self.document.insert(&self.cursor_position, '}')
+            }
+            Key::Char('[') => {
+                self.document.insert(&self.cursor_position, '[');
+                self.move_cursor(Key::Right);
+                self.document.insert(&self.cursor_position, ']')
+            }
             Key::Char(c) => {
                 self.document.insert(&self.cursor_position, c);
                 self.move_cursor(Key::Right);
