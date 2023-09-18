@@ -253,7 +253,7 @@ impl Editor {
 }
     // (Xqhare): putting the welcome message in the middle center of the screen, in relation to window size!
     pub fn draw_welcome_message(&self) {
-        let mut welcome_message = format!("| Seshat text editor  ---  Version {} |", VERSION);
+        let mut welcome_message = format!("| Seshat text editor  ---  Version {} --- by Xqhare |", VERSION);
         let width = self.terminal.size().width as usize;
         let len = welcome_message.len();
        #[allow(clippy::integer_arithmetic, clippy::integer_division)]
