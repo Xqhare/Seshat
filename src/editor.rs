@@ -140,6 +140,8 @@ impl Editor {
                 }
                 self.should_quit = true;
             }
+            // (Xqhare): after hitting alt+q several times without realising that i changed it to alt+shift+q now both are valid but hidden shortcuts.
+            Key::Alt('q') => self.should_quit = true,
             Key::Alt('Q') => self.should_quit = true,
             Key::Ctrl('s') => self.save(),
             Key::Char('(') => {
