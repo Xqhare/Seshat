@@ -18,6 +18,10 @@ pub struct Terminal {
 }
 
 impl Terminal {
+    #[allow(clippy::should_implement_trait)]
+    /// # Errors
+///
+/// Will return `Err` if the terminal is not initialised, or `stdout().into_raw_mode` errors.
     pub fn default() -> Result<Self, io::Error> {
         let size = termion::terminal_size()?;
         Ok(Self {
@@ -45,9 +49,15 @@ impl Terminal {
         let y = y as u16;
         print!("{}", termion::cursor::Goto(x, y));
     }
+    /// # Errors
+///
+/// Will return `Err` if the flush fails.
     pub fn flush() -> Result<(), io::Error> {
         stdout().flush()
     }
+    /// # Errors
+///
+/// Will return `Err` if the next key to be read can not be read.
     pub fn read_key() -> Result<Key, io::Error> {
         loop {
             if let Some(key) = io::stdin().lock().keys().next() {
@@ -56,10 +66,10 @@ impl Terminal {
         }
     }
     pub fn cursor_hide() {
-        print!("{}", termion::cursor::Hide)
+        print!("{}", termion::cursor::Hide);
     }
     pub fn cursor_show() {
-        print!("{}", termion::cursor::Show)
+        print!("{}", termion::cursor::Show);
     }
     pub fn clear_current_line() {
         print!("{}", termion::clear::CurrentLine);

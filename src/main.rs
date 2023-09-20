@@ -5,7 +5,20 @@
     clippy::shadow_reuse,
     clippy::print_stdout,
     clippy::wildcard_enum_match_arm,
-    clippy::else_if_without_else
+    clippy::else_if_without_else,
+    clippy::pub_use,
+    clippy::partial_pub_fields,
+    clippy::question_mark_used,
+    clippy::must_use_candidate,
+    clippy::pattern_type_mismatch,
+    clippy::std_instead_of_core,
+    clippy::exhaustive_structs,
+    clippy::expect_used,
+    clippy::as_conversions,
+    clippy::string_slice,
+    clippy::return_self_not_must_use,
+    clippy::panic,
+    clippy::blanket_clippy_restriction_lints
 )]
 mod document;
 mod editor;

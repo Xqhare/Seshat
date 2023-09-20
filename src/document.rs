@@ -13,6 +13,11 @@ pub struct Document {
 }
 
 impl Document {
+    // (Xqhare): That's how you write the doc's error section!
+   /// # Errors
+///
+/// Will return `Err` if `filename` does not exist or the user does not have
+/// permission to read it.
     pub fn open(filename: &str) -> Result<Self, std::io::Error> {
         let contents = fs::read_to_string(filename)?;
         let mut rows = Vec::new();
@@ -21,7 +26,7 @@ impl Document {
         }
         Ok(Self {
             rows,
-            file_name: Some(filename.to_string()),
+            file_name: Some(filename.to_owned()),
             dirty: false,
         })
     }
@@ -46,30 +51,30 @@ impl Document {
         }
         #[allow(clippy::indexing_slicing)]
         let new_row = self.rows[at.y].split(at.x);
-        #[allow(clippy::integer_arithmetic)]
+        #[allow(clippy::arithmetic_side_effects)]
         self.rows.insert(at.y + 1, new_row);
     }
-    pub fn insert(&mut self, at: &Position, c: char) {
+    pub fn insert(&mut self, at: &Position, key: char) {
         if at.y > self.rows.len() {
             return;
         }
         self.dirty = true;
         // (Xqhare): Just end the function if a newline was inserted after inserting the newline; nothing will happen with the current row now.
-        if c == '\n' {
+        if key == '\n' {
             self.insert_newline(at);
             return;
         }
         if at.y == self.rows.len() {
             let mut row = Row::default();
-            row.insert(0, c);
+            row.insert(0, key);
             self.rows.push(row);
         } else {
            #[allow(clippy::indexing_slicing)]
             let row = &mut self.rows[at.y];
-            row.insert(at.x, c);
+            row.insert(at.x, key);
         }
     }
-    #[allow(clippy::integer_arithmetic, clippy::indexing_slicing)]
+    #[allow(clippy::arithmetic_side_effects, clippy::indexing_slicing)]
     pub fn delete(&mut self, at: &Position) {
         let len = self.rows.len();
         // (Xqhare): if y is larger than length it is out of scope anyway
@@ -86,6 +91,9 @@ impl Document {
             row.delete(at.x);
         }
     }
+    /// # Errors
+///
+/// Will return `Err` if the filesystem produced an error when creating or writing the file.
     pub fn save(&mut self) -> Result<(), Error> {
         if let Some(file_name) = &self.file_name {
             let mut file = fs::File::create(file_name)?;

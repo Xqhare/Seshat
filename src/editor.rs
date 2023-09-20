@@ -48,13 +48,13 @@ impl Editor {
 
         loop {
             if let Err(error) = self.refresh_screen() {
-                die(error);
+                die(&error);
             }
             if self.should_quit {
                 break;
             }
             if let Err(error) = self.process_keypress() {
-                die(error);
+                die(&error);
             }
         }
     }
@@ -67,7 +67,7 @@ impl Editor {
             if let Ok(doc) = doc {
                 doc
             } else {
-                initial_status = format!("ERR: Could not open file: {}", file_name);
+                initial_status = format!("ERR: Could not open file: {file_name}");
                 Document::default()
             }
         } else {
@@ -110,7 +110,7 @@ impl Editor {
         if self.document.file_name.is_none() {
             let new_name = self.prompt("Save as: ").unwrap_or(None);
             if new_name.is_none() {
-                self.status_message = StatusMessage::from("Save aborted.".to_string());
+                self.status_message = StatusMessage::from("Save aborted.".to_owned());
                 return;
             }
             self.document.file_name = new_name;
@@ -118,15 +118,16 @@ impl Editor {
 
         // (Xqhare): is_ok it an error checker if used in an if; it returns a bool
         if self.document.save().is_ok() {
-            self.status_message = StatusMessage::from("File saved Successfully.".to_string());
+            self.status_message = StatusMessage::from("File saved Successfully.".to_owned());
             // (Xqhare): else here is the error handler!
         } else {
-            self.status_message = StatusMessage::from("Error writing file!".to_string());
+            self.status_message = StatusMessage::from("Error writing file!".to_owned());
         }
     }
     pub fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
+            #[allow(clippy::arithmetic_side_effects)]
             // (Xqhare): what does the | do?? -> normal or? (and-or)
             Key::Ctrl('q') => {
                 if self.quit_times > 0 && self.document.is_dirty() {
@@ -137,32 +138,32 @@ impl Editor {
                     self.quit_times -= 1;
                     return Ok(());
                 }
-                self.should_quit = true
+                self.should_quit = true;
             }
             Key::Alt('Q') => self.should_quit = true,
             Key::Ctrl('s') => self.save(),
             Key::Char('(') => {
                 self.document.insert(&self.cursor_position, '(');
                 self.move_cursor(Key::Right);
-                self.document.insert(&self.cursor_position, ')')
+                self.document.insert(&self.cursor_position, ')');
             }
             Key::Char('"') => {
                 self.document.insert(&self.cursor_position, '"');
                 self.move_cursor(Key::Right);
-                self.document.insert(&self.cursor_position, '"')
+                self.document.insert(&self.cursor_position, '"');
             }
             Key::Char('{') => {
                 self.document.insert(&self.cursor_position, '{');
                 self.move_cursor(Key::Right);
-                self.document.insert(&self.cursor_position, '}')
+                self.document.insert(&self.cursor_position, '}');
             }
             Key::Char('[') => {
                 self.document.insert(&self.cursor_position, '[');
                 self.move_cursor(Key::Right);
-                self.document.insert(&self.cursor_position, ']')
+                self.document.insert(&self.cursor_position, ']');
             }
-            Key::Char(c) => {
-                self.document.insert(&self.cursor_position, c);
+            Key::Char(key) => {
+                self.document.insert(&self.cursor_position, key);
                 self.move_cursor(Key::Right);
             }
             Key::Delete => self.document.delete(&self.cursor_position),
@@ -221,9 +222,10 @@ impl Editor {
             Key::Up => y = y.saturating_sub(1),
             Key::Down => {
                 if y < height {
-                    y = y.saturating_add(1)
+                    y = y.saturating_add(1);
                 }
             }
+            #[allow(clippy::arithmetic_side_effects)]
             Key::Left => {
                 if x > 0 {
                     x -= 1;
@@ -236,6 +238,7 @@ impl Editor {
                     }
                 }
             }
+            #[allow(clippy::arithmetic_side_effects)]
             Key::Right => {
                 if x < width {
                     x += 1;
@@ -274,40 +277,42 @@ impl Editor {
 }
     // (Xqhare): putting the welcome message in the middle center of the screen, in relation to window size!
     pub fn draw_welcome_message(&self) {
-        let mut welcome_message = format!("| Seshat text editor  ---  Version {} --- by Xqhare |", VERSION);
+        let mut welcome_message = format!("| Seshat text editor  ---  Version {VERSION} --- by Xqhare |");
         let width = self.terminal.size().width as usize;
         let len = welcome_message.len();
-       #[allow(clippy::integer_arithmetic, clippy::integer_division)]
+       #[allow(clippy::arithmetic_side_effects, clippy::integer_division)]
         let padding = width.saturating_sub(len) / 2;
         let spaces = " ".repeat(padding.saturating_sub(1));
-        welcome_message = format!("~{}{}", spaces, welcome_message);
+        welcome_message = format!("~{spaces}{welcome_message}");
         welcome_message.truncate(width);
-        println!("{}\r", welcome_message);
+        println!("{welcome_message}\r");
     }
     pub fn draw_welcome_box(&self) {
-        let mut welcome_message = format!("========================================================");
+        let mut welcome_message = "========================================================".to_owned();
         let width = self.terminal.size().width as usize;
         let len = welcome_message.len();
+        #[allow(clippy::arithmetic_side_effects, clippy::integer_division)]
         let padding = width.saturating_sub(len) / 2;
         let spaces = " ".repeat(padding.saturating_sub(1));
-        welcome_message = format!("~{}{}", spaces, welcome_message);
+        welcome_message = format!("~{spaces}{welcome_message}");
         welcome_message.truncate(width);
-        println!("{}\r", welcome_message);
+        println!("{welcome_message}\r");
     }
     pub fn draw_row(&self, row: &Row) {
         let width = self.terminal.size().width as usize;
         let start = self.offset.x;
         let end = self.offset.x.saturating_add(width);
         let row = row.render(start, end);
-        println!("{}\r", row)
+        println!("{row}\r");
     }
-    #[allow(clippy::integer_arithmetic, clippy::integer_division)]
+    #[allow(clippy::arithmetic_side_effects, clippy::integer_division)]
     pub fn draw_rows(&self) {
         let height = self.terminal.size().height;
         for terminal_row in 0..height {
             Terminal::clear_current_line();
             // (Xqhare): What an interesting way of formatting! -> instead of everything behind each other for a massive line,
-            // (Xqhare): it can be broken into smaller; more distinct blocks of code!
+            // (Xqhare): it can be broken into smaller; more distinct blocks of code, with every .xx on a new line!
+            #[allow(clippy::arithmetic_side_effects, clippy::integer_division)]
             if let Some(row) = self
                 .document
                 .row(self.offset.y.saturating_add(terminal_row as usize)) {
@@ -331,7 +336,7 @@ impl Editor {
         } else {
             ""
         };
-        let mut file_name = "[NO NAME]".to_string();
+        let mut file_name = "[NO NAME]".to_owned();
         if let Some(name) = &self.document.file_name {
             file_name = name.clone();
             file_name.truncate(20);
@@ -348,38 +353,39 @@ impl Editor {
             self.cursor_position.y.saturating_add(1),
             self.document.len()
         );
-        #[allow(clippy::integer_arithmetic)]
+        #[allow(clippy::arithmetic_side_effects)]
         let len = status.len() + line_indicator.len();
         status.push_str(&" ".repeat(width.saturating_sub(len)));
-        status = format!("{}{}", status, line_indicator);
+        status = format!("{status}{line_indicator}");
         status.truncate(width);
         Terminal::set_bg_color(STATUS_BG_COLOR);
         Terminal::set_fg_color(STATUS_FG_COLOR);
-        println!("{}\r", status);
+        println!("{status}\r");
         Terminal::reset_bg_color();
         Terminal::reset_fg_color();
     }
     fn draw_message_bar(&self) {
         Terminal::clear_current_line();
         let message = &self.status_message;
+        #[allow(clippy::arithmetic_side_effects, clippy::manual_instant_elapsed)]
         if Instant::now() - message.time < Duration::new(5, 0) {
             let mut text = message.text.clone();
             text.truncate(self.terminal.size().width as usize);
-            println!("{}", text)
+            println!("{text}");
         }
     }
     fn prompt(&mut self, prompt: &str) -> Result<Option<String>, io::Error> {
         // (Xqhare): initialising the user answer as an empty mutable string
         let mut result = String::new();
         loop {
-            self.status_message = StatusMessage::from(format!("{}{}", prompt, result));
+            self.status_message = StatusMessage::from(format!("{prompt}{result}"));
             self.refresh_screen()?;
             match Terminal::read_key()? {
                 Key::Backspace => result.truncate(result.len().saturating_sub(1)),
                 Key::Char('\n') => break,
-                Key::Char(c) => {
-                    if !c.is_control() {
-                        result.push(c);
+                Key::Char(key) => {
+                    if !key.is_control() {
+                        result.push(key);
                     }
                 }
                 Key::Esc => {
@@ -397,8 +403,8 @@ impl Editor {
     }
 }
 
-fn die(e: std::io::Error) {
+fn die(final_error: &std::io::Error) {
     // (Xqhare): Clearing screen for empty slate after use for user input of terminal without artifacts
     Terminal::clear_screen();
-    panic!("{}", e);
+    panic!("{final_error}");
 }

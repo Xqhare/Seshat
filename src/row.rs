@@ -22,14 +22,14 @@ impl Row {
         let end = cmp::min(end, self.string.len());
         let start = cmp::min(start, end);
         let mut result = String::new();
-        #[allow(clippy::integer_arithmetic)]
+        #[allow(clippy::arithmetic_side_effects, clippy::string_slice)]
         for grapheme in self.string[..]
             .graphemes(true)
             .skip(start)
             .take(end - start)
         {
             if grapheme == "\t" {
-                result.push_str(" ");
+                result.push(' ');
             } else {
                 result.push_str(grapheme);
             }
@@ -45,28 +45,27 @@ impl Row {
     fn update_len(&mut self) {
         self.len = self.string[..].graphemes(true).count();
     }
-    pub fn insert(&mut self, at: usize, c: char) {
+    pub fn insert(&mut self, at: usize, key: char) {
         if at >= self.len() {
-            self.string.push(c);
+            self.string.push(key);
         } else {
             let mut result: String = self.string[..].graphemes(true).take(at).collect();
             let remainder: String = self.string[..].graphemes(true).skip(at).collect();
-            result.push(c);
+            result.push(key);
             result.push_str(&remainder);
             self.string = result;
         }
         self.update_len();
     }
-    #[allow(clippy::integer_arithmetic)]
+    #[allow(clippy::arithmetic_side_effects)]
     pub fn delete(&mut self, at: usize) {
         if at >= self.len() {
             return;
-        } else {
-            let mut result: String = self.string[..].graphemes(true).take(at).collect();
-            let remainder: String = self.string[..].graphemes(true).skip(at + 1).collect();
-            result.push_str(&remainder);
-            self.string = result;
         }
+        let mut result: String = self.string[..].graphemes(true).take(at).collect();
+        let remainder: String = self.string[..].graphemes(true).skip(at + 1).collect();
+        result.push_str(&remainder);
+        self.string = result;
         self.update_len();
     }
     pub fn append(&mut self, new: &Self) {
@@ -78,6 +77,7 @@ impl Row {
         let remainder: String = self.string[..].graphemes(true).skip(at).collect();
         self.string = beginning;
         self.update_len();
+        #[allow(clippy::deref_by_slicing)]
         Self::from(&remainder[..])
     }
     pub fn as_bytes(&self) -> &[u8] {
