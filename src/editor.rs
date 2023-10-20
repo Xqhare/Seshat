@@ -158,6 +158,7 @@ impl Editor {
                 self.cursor_position = old_position;
                 self.scroll();
             }
+        }
     }
     pub fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
@@ -312,7 +313,7 @@ impl Editor {
             x = width;
         }
         self.cursor_position = Position { x, y }
-}
+    }
     // (Xqhare): putting the welcome message in the middle center of the screen, in relation to window size!
     pub fn draw_welcome_message(&self) {
         let mut welcome_message = format!("| Seshat text editor  ---  Version {VERSION} --- by Xqhare |");

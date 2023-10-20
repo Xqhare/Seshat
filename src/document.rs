@@ -121,10 +121,9 @@ impl Document {
         } else {
             0
         };
-        let end if direction == SearchDirection::Forward {
-            self.rows.len()
-        } else {
-            at.y.saturating_add(1)
+        let end = match direction {
+            SearchDirection::Forward => self.rows.len(),
+            SearchDirection::Backward => at.y.saturating_add(1)
         };
         for _ in start..end {
             if let Some(row) = self.rows.get(position.y) {

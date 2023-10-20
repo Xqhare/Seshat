@@ -127,7 +127,7 @@ impl Row {
             substring.rfind(query)
         };
         if let Some(matching_byte_index) = matching_byte_index {
-            for (grapheme_index, (byte_index, _)) in substing[..].grapheme_indices(true).enumerate() {
+            for (grapheme_index, (byte_index, _)) in substring[..].grapheme_indices(true).enumerate() {
                 if matching_byte_index == byte_index {
                     #[allow(clippy::integer_arithmetic)]
                     return Some(start + grapheme_index);
