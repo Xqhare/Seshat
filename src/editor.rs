@@ -60,7 +60,7 @@ impl Editor {
     }
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
-        let mut initial_status = String::from("HELP: Ctrl-s to save | Ctrl-q to quit");
+        let mut initial_status = String::from("HELP: Ctrl-s to save | Ctrl-f to find | Ctrl-q to quit");
         // (Xqhare): Dont forget args[0] is the app name!
         let document = if let Some(file_name) = args.get(1) {
             let doc = Document::open(file_name);
@@ -108,7 +108,7 @@ impl Editor {
     fn save(&mut self) {
         // (Xqhare): Check for filename, if none found let user save as
         if self.document.file_name.is_none() {
-            let new_name = self.prompt("Save as: ").unwrap_or(None);
+            let new_name = self.prompt("Save as: ", |_, _, _| {}).unwrap_or(None);
             if new_name.is_none() {
                 self.status_message = StatusMessage::from("Save aborted.".to_owned());
                 return;
@@ -144,6 +144,21 @@ impl Editor {
             Key::Alt('q') => self.should_quit = true,
             Key::Alt('Q') => self.should_quit = true,
             Key::Ctrl('s') => self.save(),
+            Key::Ctrl('f') => {
+                if let Some(query) = self.prompt("Search: ", |editor, _, query| {
+                    if let Some(position) = editor.document.find(&query) {
+                        editor.cursor_position = position;
+                        editor.scroll();
+                    } 
+                }).unwrap_or(None)
+                {
+                    if let Some(position) = self.document.find(&query[..]) {
+                        self.cursor_position = position;
+                    } else {
+                        self.status_message = StatusMessage::from(format!("Not found :{query}"));
+                    }
+                }
+            }
             Key::Char('(') => {
                 self.document.insert(&self.cursor_position, '(');
                 self.move_cursor(Key::Right);
@@ -376,13 +391,14 @@ impl Editor {
             println!("{text}");
         }
     }
-    fn prompt(&mut self, prompt: &str) -> Result<Option<String>, io::Error> {
+    fn prompt<C>(&mut self, prompt: &str, callback: C) -> Result<Option<String>, io::Error> where C: Fn(&mut Self, Key, &String), {
         // (Xqhare): initialising the user answer as an empty mutable string
         let mut result = String::new();
         loop {
             self.status_message = StatusMessage::from(format!("{prompt}{result}"));
             self.refresh_screen()?;
-            match Terminal::read_key()? {
+            let key = Terminal::read_key()?;
+            match key {
                 Key::Backspace => result.truncate(result.len().saturating_sub(1)),
                 Key::Char('\n') => break,
                 Key::Char(key) => {
@@ -396,6 +412,7 @@ impl Editor {
                 }
                 _ => (),
             }
+            callback(self, key, &result);
         }
         self.status_message = StatusMessage::from(String::new());
         if result.is_empty() {

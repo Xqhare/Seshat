@@ -9,7 +9,7 @@ pub struct Size {
     pub width: u16,
     pub height: u16,
 }
-pub struct Terminal {
+pub struct Terminal { 
     size: Size,
     // (Xqhare): _var is a variable that just isn't used anywhere else in the program but need to exist, it is initialised in impl
     // (Xqhare): e.g. here where into_raw_mode returns something and as long as it is held onto, raw_mode is enabled.
