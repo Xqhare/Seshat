@@ -133,7 +133,7 @@ impl Editor {
     fn search (&mut self) {
         let old_position = self.cursor_position.clone();
         let mut direction = SearchDirection::Forward;
-        let query = self.prompt("Search (ESC t ocancel, Arrows to navigate): ", |editor, key, query| {
+        let query = self.prompt("Search (ESC to cancel, Arrows to navigate): ", |editor, key, query| {
             let mut moved = false;
             match key {
                 Key::Right | Key::Down => {
