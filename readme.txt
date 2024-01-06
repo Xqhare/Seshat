@@ -12,3 +12,10 @@ TODO: Syntax highlighting for general use:
 Known Bugs:
 Seshat really likes to repeat the first line of any file - Why? Idk.
 Search puts the cursor one line lower than expected - Why? Probably a saturating_add(1) somewhere where it shouldn't be; But idk where.
+
+## Acknowledgments
+Thanks to the open-source community for providing invaluable tools and libraries.
+Used in this project:
+- [Hecto](https://www.flenker.blog/hecto-chapter-1/)
+- [unicode-segmentation](https://crates.io/crates/unicode-segmentation)
+- [termion](https://crates.io/crates/termion)
